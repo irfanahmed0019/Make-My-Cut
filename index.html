@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make My Cut</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Google Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --maroon: #9A2A2A;
+            --beige: #D4CFCB;
+            --cream: #FFFDF7;
+            --dark-bg: #0A0908;
+            --card-bg: #1C1A19;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Fade-in animation for sections */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* New styles for the booking page */
+        .custom-radio:checked {
+            background-color: var(--maroon);
+            border-color: var(--maroon);
+        }
+        .custom-radio:checked + div {
+            border-color: var(--maroon);
+        }
+        .time-slot:hover, .time-slot.selected {
+            background-color: var(--maroon);
+            color: var(--cream);
+        }
+        .time-slot:hover .material-symbols-outlined, .time-slot.selected .material-symbols-outlined {
+            color: var(--cream);
+        }
+        .calendar-day:hover, .calendar-day.selected {
+            background-color: var(--maroon);
+            color: var(--cream);
+        }
+        .main-content {
+            display: none;
+        }
+        .main-content.logged-in {
+            display: block;
+        }
+        .error-message {
+            display: none;
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        /* Additional styles for the QR ticket page */
+        body {
+            min-height: max(884px, 100dvh);
+        }
+        .material-symbols-outlined.fill-1 {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-[var(--dark-bg)] text-[var(--beige)] flex flex-col min-h-screen">
+
+    <!-- Message Box for alerts -->
+    <div id="message-box" class="message-box"></div>
+
+    <!-- Login removed: app opens directly to main content -->
+
+    <!-- Main Content Area (Hidden by default) -->
+    <div id="main-content-area" class="main-content flex-grow flex flex-col justify-start">
+        <!-- Header -->
+        <header class="bg-[var(--dark-bg)] px-4 pt-8 pb-4">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-[var(--beige)]" style='font-family: "Playfair Display", serif;'>Make My Cut</h1>
+                <p class="text-sm text-gray-500 mt-1" style='font-family: "Playfair Display", serif;'>Your Style, Your Time.</p>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Sections -->
+        <main class="flex-grow px-4 pb-20 overflow-y-auto">
+            <!-- Bookings Section -->
+            <section id="bookings-section" class="page-section pt-4">
+                <h2 class="text-2xl font-bold mb-4 text-center">My Bookings</h2>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Upcoming Bookings</h3>
+                        <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden">
+                            <div class="p-4 flex gap-4">
+                                <div class="w-24 h-24 flex items-center justify-center bg-gray-700 rounded-lg">
+                                    <span class="material-symbols-outlined text-5xl text-gray-400">qr_code_2</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold text-[var(--cream)]">The Barber Shop</h4>
+                                    <p class="text-gray-400">Haircut</p>
+                                    <p class="text-gray-300 mt-1">₹250.00</p>
+                                </div>
+                            </div>
+                            <div class="px-4 pb-4 border-t border-gray-700">
+                                <div class="flex items-center text-gray-300 mt-2">
+                                    <span class="material-symbols-outlined mr-2 text-lg">calendar_today</span>
+                                    <span>Dec 15, 2025</span>
+                                    <span class="mx-2">·</span>
+                                    <span class="material-symbols-outlined mr-2 text-lg">schedule</span>
+                                    <span>10:00 AM</span>
+                                </div>
+                                <div class="flex gap-3 mt-4">
+                                    <button class="flex-1 py-2 rounded-lg bg-[var(--beige)] text-black font-semibold">Cancel</button>
+                                    <button class="flex-1 py-2 rounded-lg bg-[var(--maroon)] text-white font-semibold">Reschedule</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">History</h3>
+                        <div class="space-y-2">
+                            <div class="bg-[var(--card-bg)]/10 p-4 rounded-lg flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-[var(--cream)]">The Barber Shop</h4>
+                                    <p class="text-sm text-gray-400">Haircut</p>
+                                </div>
+                                <span class="text-green-400 font-medium">Done</span>
+                            </div>
+                            <div class="bg-[var(--card-bg)]/10 p-4 rounded-lg flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-[var(--cream)]">Gentleman's Cut</h4>
+                                    <p class="text-sm text-gray-400">Beard Trim</p>
+                                </div>
+                                <span class="text-red-400 font-medium">Cancelled</span>
+                            </div>
+                            <div class="bg-[var(--card-bg)]/10 p-4 rounded-lg flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-[var(--cream)]">Style &amp; Grace</h4>
+                                    <p class="text-sm text-gray-400">Fade &amp; Shave</p>
+                                </div>
+                                <span class="text-gray-500 font-medium">No-show</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trusted Picks Section -->
+            <section id="trusted-picks-section" class="page-section pt-4">
+                <h2 class="text-2xl font-bold mb-4 text-center">Home</h2>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">People's Choice</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4 p-4 rounded-lg bg-[var(--card-bg)]">
+                                <div class="flex-1 space-y-3">
+                                    <div class="space-y-1">
+                                        <p class="text-base font-bold text-[var(--cream)]">The Barber Shop</p>
+                                        <p class="text-[var(--beige)] text-sm">Classic cuts and modern styles</p>
+                                        <div class="flex items-center gap-1 text-[var(--beige)] text-sm">
+                                            <span class="material-symbols-outlined text-base text-yellow-400">star</span>
+                                            <span>4.9 (1.2k reviews)</span>
+                                        </div>
+                                    </div>
+                                    <button class="book-now-btn bg-[var(--maroon)] text-white text-sm font-semibold py-2 px-4 rounded-lg" data-target="confirm-booking-section">Book Now</button>
+                                </div>
+                                <img alt="The Barber Shop interior" class="w-28 h-28 object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqBL6ciTINafb4nkCo1LstVd08Wk7M1NjxsHnlagwCJ5NN_pwMXdckvXd4ad6SM8Oqssgab159habLRLVcMUcIzS5B26_6S7a28EaI8A41KVjuHhv55rmhx6UOglpDQz4JC8GDpP4rA_uyT4yF7K5Gwm3iiWhdLMteAIlWt4Daz-V_chZHdCzuqtnSF2kB438LXJlhaj_y9kXfsjjIoT7nWZfxoSP04hM9dIFppJ8T9nrlpGSntk1i0gMPKBMw--v19erLWSpuEF4Q"/>
+                            </div>
+                            <div class="flex items-start gap-4 p-4 rounded-lg bg-[var(--card-bg)]">
+                                <div class="flex-1 space-y-3">
+                                    <div class="space-y-1">
+                                        <p class="text-base font-bold text-[var(--cream)]">Urban Grooming</p>
+                                        <p class="text-[var(--beige)] text-sm">Trendy haircuts and beard trims</p>
+                                        <div class="flex items-center gap-1 text-[var(--beige)] text-sm">
+                                            <span class="material-symbols-outlined text-base text-yellow-400">star</span>
+                                            <span>4.8 (850 reviews)</span>
+                                        </div>
+                                    </div>
+                                    <button class="book-now-btn bg-[var(--maroon)] text-white text-sm font-semibold py-2 px-4 rounded-lg" data-target="confirm-booking-section">Book Now</button>
+                                </div>
+                                <img alt="Urban Grooming interior" class="w-28 h-28 object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALwFmFwj-I2jEoiYYfB8YWMuXvvUGOd4JYbnVrV_FOJ7CDYWvkWb9PPHtxUml4FMpXY1d03ei5KTtHA-hGqLORuimSYK01EeN4i8fqj_tF4hW8E26yRMBFz1Yk4b4n_q06bunGSL_2Sn7E2_jcfZg1wE_USn_XXDMnNnkTYSSVzsn6j1H7uQe21ObXSRquZQC4aMJWekrvpxXExt1H9P5y8GS8tifoUar5Zi7jd4mj4V163GQaJtATHBTgLswnXCrTFH3ytZtLEa8r"/>
+                            </div>
+                            <div class="flex items-start gap-4 p-4 rounded-lg bg-[var(--card-bg)]">
+                                <div class="flex-1 space-y-3">
+                                    <div class="space-y-1">
+                                        <p class="text-base font-bold text-[var(--cream)]">The Hair Lounge</p>
+                                        <p class="text-[var(--beige)] text-sm">Relaxing experience with skilled barbers</p>
+                                        <div class="flex items-center gap-1 text-[var(--beige)] text-sm">
+                                            <span class="material-symbols-outlined text-base text-yellow-400">star</span>
+                                            <span>4.7 (600 reviews)</span>
+                                        </div>
+                                    </div>
+                                    <button class="book-now-btn bg-[var(--maroon)] text-white text-sm font-semibold py-2 px-4 rounded-lg" data-target="confirm-booking-section">Book Now</button>
+                                </div>
+                                <img alt="The Hair Lounge interior" class="w-28 h-28 object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOSFeAD3qYBftvdLU4SjK6Jon1h0YyWUbRE_LZioOshfP3NztVx9plT1RCjHE3bEnop-qImt5JtSwM8KBFdS_owKskyBECakMVt0ckGJtq49njTyaMHO8JWbe4Atve8J4we6eBfT_xl1LSsq4-UKAE1Z82IEkSRvoH12LoqH7X156Qkh9uUY8YfpI30-X_8Q5wOz576PZb2Gj90kCoPb20vPfStYSUytMerYqgQUvWYYOe_ShodEWPSZhJpnOAlYJZxZQ9hpRoZNt"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Expert's Choice</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4 p-4 rounded-lg bg-[var(--card-bg)]">
+                                <div class="flex-1 space-y-3">
+                                    <div class="space-y-1">
+                                        <p class="text-base font-bold text-[var(--cream)]">The Style Studio</p>
+                                        <p class="text-[var(--beige)] text-sm">High-end haircuts and styling</p>
+                                        <div class="flex items-center gap-1 text-[var(--beige)] text-sm">
+                                            <span class="material-symbols-outlined text-base text-yellow-400">star</span>
+                                            <span>4.9 (900 reviews)</span>
+                                        </div>
+                                    </div>
+                                    <button class="book-now-btn bg-[var(--maroon)] text-white text-sm font-semibold py-2 px-4 rounded-lg" data-target="confirm-booking-section">Book Now</button>
+                                </div>
+                                <img alt="The Style Studio interior" class="w-28 h-28 object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA49AQYu6P-UV4EKXXQKll5II676CAYFEiIl4L-seOLFZqepZbrTFSx6GXnzAW55hqcxYnLcspSRyjJ47T5Gy60vaKU7iiePblRCn8dN7rT8rkk4hVx8TOjhj2taKDsdqn_GVpSXQ81ctXDF1aPh5bZt3V2ESTCSGZFsngrhr9q1FPYXwE1oaREKX15ny4M7jdQvULuwNOgjkKkyUsVvF9VePbVWBzwcewl9Faaeec8EMmz_PAJQHQEXgt1y1d_MOO989YjZLYans_"/>
+                            </div>
+                            <div class="flex items-start gap-4 p-4 rounded-lg bg-[var(--card-bg)]">
+                                <div class="flex-1 space-y-3">
+                                    <div class="space-y-1">
+                                        <p class="text-base font-bold text-[var(--cream)]">The Grooming Room</p>
+                                        <p class="text-[var(--beige)] text-sm">Professional barber services</p>
+                                        <div class="flex items-center gap-1 text-[var(--beige)] text-sm">
+                                            <span class="material-symbols-outlined text-base text-yellow-400">star</span>
+                                            <span>4.8 (700 reviews)</span>
+                                        </div>
+                                    </div>
+                                    <button class="book-now-btn bg-[var(--maroon)] text-white text-sm font-semibold py-2 px-4 rounded-lg" data-target="confirm-booking-section">Book Now</button>
+                                </div>
+                                <img alt="The Grooming Room interior" class="w-28 h-28 object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4fqbpKZqxYVSlT_LBv9f_FjvhByBliuBPZeC8yuJ8LY1TTphx9hxtb7UA6Tmymrr8_g1-7wYajwkhhPiCE_kdPe8h5f7WZI5pbEHvc3LK_RkMaGJqCe0nhBGSKVlWxrnVS6cVbkP-ha3uq22nT0ocJ7gvEUAqHbCgdHXwYScoevWhK_VkUFZcTO3ytHEeBA8JZ4W-oRjpt26FcNwP4Vk-G5S2-SV1yGKX6o4KPwd8ZylqCWkErFYD4PUv_xN7bWtw5nqUs5F8e1LR"/>
+                            </div>
+                            <div class="flex items-start gap-4 p-4 rounded-lg bg-[var(--card-bg)]">
+                                <div class="flex-1 space-y-3">
+                                    <div class="space-y-1">
+                                        <p class="text-base font-bold text-[var(--cream)]">The Hair Haven</p>
+                                        <p class="text-[var(--beige)] text-sm">Quality haircuts in a cozy setting</p>
+                                        <div class="flex items-center gap-1 text-[var(--beige)] text-sm">
+                                            <span class="material-symbols-outlined text-base text-yellow-400">star</span>
+                                            <span>4.7 (500 reviews)</span>
+                                        </div>
+                                    </div>
+                                    <button class="book-now-btn bg-[var(--maroon)] text-white text-sm font-semibold py-2 px-4 rounded-lg" data-target="confirm-booking-section">Book Now</button>
+                                </div>
+                                <img alt="The Hair Haven interior" class="w-28 h-28 object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOSFeAD3qYBftvdLU4SjK6Jon1h0YyWUbRE_LZioOshfP3NztVx9plT1RCjHE3bEnop-qImt5JtSwM8KBFdS_owKskyBECakMVt0ckGJtq49njTyaMHO8JWbe4Atve8J4we6eBfT_xl1LSsq4-UKAE1Z82IEkSRvoH12LoqH7X156Qkh9uUY8YfpI30-X_8Q5wOz576PZb2Gj90kCoPb20vPfStYSUytMerYqgQUvWYYOe_ShodEWPSZhJpnOAlYJZxZQ9hpRoZNt"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Confirm Booking Section -->
+            <section id="confirm-booking-section" class="page-section pt-4">
+                <header class="flex items-center p-4 pb-2 justify-between sticky top-0 bg-[var(--dark-bg)] z-10">
+                    <button class="flex size-10 shrink-0 items-center justify-center rounded-full bg-[var(--card-bg)]" onclick="showSection('trusted-picks-section'); updateActiveLink('trusted-picks-section');">
+                        <span class="material-symbols-outlined text-white">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="text-xl font-bold leading-tight flex-1 text-center">Confirm Your Booking</h1>
+                    <div class="size-10"></div>
+                </header>
+                <p class="text-gray-400 text-sm font-normal pb-4 pt-1 px-4">Please review your booking details and confirm.</p>
+                <div class="px-4 pb-6">
+                    <div class="flex items-center justify-between gap-4 rounded-xl bg-[var(--card-bg)] p-4">
+                        <div class="flex flex-col gap-1.5">
+                            <p class="text-sm text-neutral-400">Saloon</p>
+                            <p class="text-lg font-bold">The Gentry Barbershop</p>
+                            <div class="flex items-center gap-2 text-sm text-gray-400">
+                                <span class="material-symbols-outlined text-base text-[var(--maroon)]">star</span>
+                                <span>4.8</span>
+                                <span class="text-gray-600">|</span>
+                                <span>120 reviews</span>
+                                <span class="text-gray-600">|</span>
+                                <span>1.2 km</span>
+                            </div>
+                        </div>
+                        <div class="w-20 h-20 bg-center bg-no-repeat bg-cover rounded-lg shrink-0" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCzYW_qTsU4zUVqRKV82IZAUUMi471CydObeMaGx1X2tk3lRBmsbip4__YQ6bO9St1Y4_CaCMwCxHVcV7iSWFvyDrZrftjEdimNcmmD1ttHWYJLiv2hobmt3a5Wey95b3iJKhdJvmXW093Zxr8t_CoOehdmcu9qLVgs4vwD-AQiPmiaA4ci7p78o4WE3A4PJh4rsj8yoawy-j0kZ7csVxdMgtx6Xk9k90ffDi5qh7YPQf1Y6f8R1gTFqPNdq0AYri2Fyi-2doDxdnOV");'></div>
+                    </div>
+                </div>
+                <h2 class="text-lg font-bold px-4 pb-3">Select Service</h2>
+                <div class="flex flex-col gap-3 px-4">
+                    <label class="flex items-center gap-4 cursor-pointer">
+                        <input checked="" class="custom-radio h-5 w-5 appearance-none rounded-full border-2 border-gray-600 bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors" name="service" type="radio"/>
+                        <div class="flex grow flex-col rounded-lg border border-solid border-gray-600 p-3 transition-colors">
+                            <p class="text-base font-medium">Haircut</p>
+                            <p class="text-sm text-gray-400">₹200 · 30 min</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-4 cursor-pointer">
+                        <input class="custom-radio h-5 w-5 appearance-none rounded-full border-2 border-gray-600 bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors" name="service" type="radio"/>
+                        <div class="flex grow flex-col rounded-lg border border-solid border-gray-600 p-3 transition-colors">
+                            <p class="text-base font-medium">Shave</p>
+                            <p class="text-sm text-gray-400">₹50 · 20 min</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-4 cursor-pointer">
+                        <input class="custom-radio h-5 w-5 appearance-none rounded-full border-2 border-gray-600 bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors" name="service" type="radio"/>
+                        <div class="flex grow flex-col rounded-lg border border-solid border-gray-600 p-3 transition-colors">
+                            <p class="text-base font-medium">Combo (Haircut + Shave)</p>
+                            <p class="text-sm text-gray-400">₹250 · 50 min</p>
+                        </div>
+                    </label>
+                </div>
+                <h2 class="text-lg font-bold px-4 pb-3 pt-6">Select Date</h2>
+                <div class="px-4">
+                    <div class="flex flex-col bg-[var(--card-bg)] rounded-xl p-4">
+                        <div class="flex items-center justify-between pb-3">
+                            <button class="flex size-8 items-center justify-center rounded-full hover:bg-gray-700">
+                                <span class="material-symbols-outlined text-xl">chevron_left</span>
+                            </button>
+                            <p class="text-base font-bold">October 2025</p>
+                            <button class="flex size-8 items-center justify-center rounded-full hover:bg-gray-700">
+                                <span class="material-symbols-outlined text-xl">chevron_right</span>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-7 text-center">
+                            <p class="text-sm font-bold text-gray-400 h-10 flex items-center justify-center">S</p>
+                            <p class="text-sm font-bold text-gray-400 h-10 flex items-center justify-center">M</p>
+                            <p class="text-sm font-bold text-gray-400 h-10 flex items-center justify-center">T</p>
+                            <p class="text-sm font-bold text-gray-400 h-10 flex items-center justify-center">W</p>
+                            <p class="text-sm font-bold text-gray-400 h-10 flex items-center justify-center">T</p>
+                            <p class="text-sm font-bold text-gray-400 h-10 flex items-center justify-center">F</p>
+                            <p class="text-sm font-bold text-gray-400 h-10 flex items-center justify-center">S</p>
+                            <button class="calendar-day h-10 text-sm font-medium col-start-3 rounded-full">1</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">2</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">3</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">4</button>
+                            <button class="calendar-day selected h-10 text-sm font-medium rounded-full">5</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">6</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">7</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">8</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">9</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">10</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">11</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">12</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">13</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">14</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">15</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">16</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">17</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">18</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">19</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">20</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">21</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">22</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">23</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">24</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">25</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">26</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">27</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">28</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">29</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">30</button>
+                            <button class="calendar-day h-10 text-sm font-medium rounded-full">31</button>
+                        </div>
+                    </div>
+                </div>
+                <h2 class="text-lg font-bold px-4 pb-3 pt-6">Select Time <span class="text-sm font-normal text-gray-400">(15 min buffer)</span></h2>
+                <div class="grid grid-cols-2 gap-3 px-4">
+                    <button class="time-slot selected flex-1 flex items-center justify-center gap-2 rounded-lg border border-gray-600 p-3 transition-colors">
+                        <span class="material-symbols-outlined text-xl">schedule</span>
+                        <span class="text-base font-bold">10:00 AM</span>
+                    </button>
+                    <button class="time-slot flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-600 p-3 transition-colors">
+                        <span class="material-symbols-outlined text-xl">schedule</span>
+                        <span class="text-base font-bold">10:30 AM</span>
+                    </button>
+                    <button class="time-slot flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-600 p-3 transition-colors">
+                        <span class="material-symbols-outlined text-xl">schedule</span>
+                        <span class="text-base font-bold">11:00 AM</span>
+                    </button>
+                    <button class="time-slot flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-600 p-3 transition-colors">
+                        <span class="material-symbols-outlined text-xl">schedule</span>
+                        <span class="text-base font-bold">11:30 AM</span>
+                    </button>
+                    <button class="time-slot flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-600 p-3 transition-colors">
+                        <span class="material-symbols-outlined text-xl">schedule</span>
+                        <span class="text-base font-bold">12:00 PM</span>
+                    </button>
+                    <button class="time-slot flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-600 p-3 transition-colors">
+                        <span class="material-symbols-outlined text-xl">schedule</span>
+                        <span class="text-base font-bold">12:30 PM</span>
+                    </button>
+                </div>
+                <h2 class="text-lg font-bold px-4 pb-3 pt-6">Booking Summary</h2>
+                <div class="px-4">
+                    <div class="p-4 bg-[var(--card-bg)] rounded-xl flex flex-col gap-4">
+                        <div class="flex justify-between items-center">
+                            <p class="text-gray-400 text-sm">Service</p>
+                            <p class="text-white text-sm font-medium">Haircut</p>
+                        </div>
+                        <div class="w-full h-[1px] bg-gray-600"></div>
+                        <div class="flex justify-between items-center">
+                            <p class="text-gray-400 text-sm">Date</p>
+                            <p class="text-white text-sm font-medium">October 26, 2025</p>
+                        </div>
+                        <div class="w-full h-[1px] bg-gray-600"></div>
+                        <div class="flex justify-between items-center">
+                            <p class="text-gray-400 text-sm">Time</p>
+                            <p class="text-white text-sm font-medium">10:00 AM</p>
+                        </div>
+                        <div class="w-full h-[1px] bg-gray-600"></div>
+                        <div class="flex justify-between items-center">
+                            <p class="text-gray-400 text-sm">Price</p>
+                            <p class="text-white text-sm font-bold">₹25</p>
+                        </div>
+                    </div>
+                </div>
+                <h2 class="text-lg font-bold px-4 pb-3 pt-6">Payment Options</h2>
+                <div class="flex flex-col gap-3 px-4 pb-6">
+                    <label class="flex items-center gap-4 cursor-pointer">
+                        <input checked="" class="custom-radio h-5 w-5 appearance-none rounded-full border-2 border-gray-600 bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors" name="payment" type="radio"/>
+                        <div class="flex grow items-center rounded-lg border border-solid border-gray-600 p-3 transition-colors">
+                            <p class="text-base font-medium">Pay Now (UPI/Online)</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-4 cursor-pointer">
+                        <input class="custom-radio h-5 w-5 appearance-none rounded-full border-2 border-gray-600 bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 transition-colors" name="payment" type="radio"/>
+                        <div class="flex grow items-center rounded-lg border border-solid border-gray-600 p-3 transition-colors">
+                            <p class="text-base font-medium">Pay at Saloon</p>
+                        </div>
+                    </label>
+                </div>
+                <div class="px-4 py-3">
+                    <button id="confirm-booking-btn" class="flex w-full cursor-pointer items-center justify-center rounded-xl h-14 px-5 bg-[var(--maroon)] text-white text-lg font-bold hover:bg-red-700 transition-colors">
+                        <span class="truncate">Confirm Booking</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- QR Ticket Section (New) -->
+            <section id="qr-ticket-section" class="page-section pt-4">
+                <header class="flex items-center p-4 pb-2 justify-between sticky top-0 bg-[var(--dark-bg)] z-10">
+                    <button class="flex size-10 shrink-0 items-center justify-center rounded-full bg-[var(--card-bg)]" onclick="showSection('confirm-booking-section'); updateActiveLink('confirm-booking-section');">
+                        <span class="material-symbols-outlined text-white">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="flex-1 text-center text-lg font-bold tracking-tight pr-10">QR Ticket</h1>
+                    <div class="size-10"></div>
+                </header>
+                <main class="px-6 pt-4 pb-8">
+                    <div class="bg-white p-6 rounded-2xl flex flex-col items-center">
+                        <img alt="QR Code" class="rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-KACZu9XUedTB8cAROZOdBnnW8iBGyWpKqsIZAA3bTJYOeyLsTrRU8lLntIGqw8m8-Yq0F0TwcXDv9qcFfWjugktzaDS1d3E1vhBviALsB-ehGzzomelXGb7MrArEQ6ILoCtmI50OK5FHR8e-1aZMdyWBD6O6TUybBifHyVTE58J9nnDNCYpLl-ilHZRm8emI98R_mGMbBS5fO5mrC9vLLCQBrXzvGlmJLkeGOyQAf6XjampdhgMfLggbccgqtp8ZltJXzeCBYAjR"/>
+                    </div>
+                    <div class="text-center mt-8 mb-6">
+                        <p class="text-xl font-semibold">Show this QR code to check in</p>
+                    </div>
+                    <div class="bg-[var(--card-bg)] p-6 rounded-2xl space-y-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-neutral-400">Saloon</p>
+                                <p class="text-base font-semibold">The Gentry Barbershop</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-neutral-400 text-right">Service</p>
+                                <p class="text-base font-semibold">Signature Haircut</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-neutral-700"></div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-neutral-400">Date</p>
+                                <p class="text-base font-semibold">July 20, 2025</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-neutral-400 text-right">Time</p>
+                                <p class="text-base font-semibold">12:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </section>
+            
+            <!-- Profile Section -->
+            <section id="profile-section" class="page-section pt-4">
+                <h2 class="text-2xl font-bold text-center mb-4 text-[var(--cream)]">My Profile</h2>
+                <p class="text-sm text-center text-gray-400 mb-6">Your account &amp; preferences</p>
+                <div class="bg-[var(--card-bg)] rounded-2xl p-4 flex items-center gap-4 mb-4">
+                    <div class="w-20 h-20 bg-center bg-no-repeat bg-cover rounded-full flex-shrink-0" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5tlCbb8Wh-aYq0ggCEwgTvUXWA0P8d-RKXgb66SiuRyXtPgaCYevUr1-3WrldOMuOdZkyCYMopa5HpcVUOBSSF6VE6irRwedw0i9rCQ1oGl_5sGR6uP0l8PkGnCma7zFSzPKGchioOX9NwYaQW2TbCD0-nVWRHiiIAJHwwumpQPuWTQYwRHFbmV1l0Vnkcgi6qNbTOda0q1lPwJBwz8AlloeEjlmH_HJnH3sadHIQpN-8XMXdOcx3kkgp9JleFsys-aZ6E7vxTqsy");'></div>
+                    <div class="flex-grow">
+                        <p class="text-lg font-bold text-[var(--cream)]">Ethan Carter</p>
+                        <p class="text-sm text-gray-400">+1 (555) 123-4567</p>
+                        <button class="mt-2 flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600">
+                            <span class="material-symbols-outlined text-base">edit</span>
+                            <span>Edit Profile</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-[var(--card-bg)] rounded-2xl p-4 space-y-2 mb-4">
+                    <h2 class="text-lg font-bold text-[var(--cream)] mb-4">Account Settings</h2>
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-700 text-white">
+                                <span class="material-symbols-outlined">shield</span>
+                            </div>
+                            <p class="text-base text-[var(--beige)]">Trust Score</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <p class="text-base font-bold text-yellow-400">8.5</p>
+                            <span class="material-symbols-outlined text-lg text-yellow-400">star</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 py-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-700 text-white">
+                            <span class="material-symbols-outlined">credit_card</span>
+                        </div>
+                        <p class="text-base text-[var(--beige)]">Payment Methods</p>
+                    </div>
+                    <div class="flex items-center justify-between py-3">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-700 text-white">
+                                <span class="material-symbols-outlined">group</span>
+                            </div>
+                            <p class="text-base text-[var(--beige)]">Referral Code</p>
+                        </div>
+                        <button class="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600">
+                            <span class="material-symbols-outlined text-base">share</span>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4 py-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-700 text-white">
+                            <span class="material-symbols-outlined">lock</span>
+                        </div>
+                        <p class="text-base text-[var(--beige)]">Privacy &amp; Security</p>
+                    </div>
+                </div>
+                <div class="px-4 py-3">
+                    <button class="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-[var(--maroon)] text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-red-700 transition-colors">
+                        <span class="truncate">Log Out</span>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer Navigation -->
+        <footer class="sticky bottom-0 border-t border-gray-800 bg-[var(--card-bg)]">
+            <nav class="flex justify-around px-4 pt-2 pb-4">
+                <a href="#" class="nav-link flex flex-col items-center gap-1 text-gray-500" data-target="trusted-picks-section">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="text-xs">Home</span>
+                </a>
+                <a href="#" class="nav-link flex flex-col items-center gap-1 text-gray-500" data-target="bookings-section">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span class="text-xs">Bookings</span>
+                </a>
+                <a href="#" class="nav-link flex flex-col items-center gap-1 text-gray-500" data-target="profile-section">
+                    <span class="material-symbols-outlined">person</span>
+                    <span class="text-xs">Profile</span>
+                </a>
+            </nav>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.page-section');
+            const bookNowButtons = document.querySelectorAll('.book-now-btn');
+            const mainContentArea = document.getElementById('main-content-area');
+            // Login removed; no phone/OTP elements
+            const messageBox = document.getElementById('message-box');
+
+            const confirmBookingBtn = document.getElementById('confirm-booking-btn');
+
+            // No login credentials required
+
+            // Function to show a temporary message
+            function showMessage(message) {
+                messageBox.textContent = message;
+                messageBox.classList.add('show');
+                setTimeout(() => {
+                    messageBox.classList.remove('show');
+                }, 3000);
+            }
+
+            // Function to handle section visibility
+            window.showSection = (targetId) => {
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                } else {
+                    console.error('Section not found:', targetId);
+                }
+            };
+
+            // Function to update active nav link
+            window.updateActiveLink = (targetId) => {
+                navLinks.forEach(link => {
+                    link.classList.remove('text-white');
+                    link.classList.add('text-gray-500');
+                    const icon = link.querySelector('.material-symbols-outlined');
+                    if (icon) {
+                        icon.classList.remove('fill');
+                    }
+                });
+                if (targetId === 'confirm-booking-section' || targetId === 'qr-ticket-section') {
+                    const bookingLink = document.querySelector('[data-target="bookings-section"]');
+                    if (bookingLink) {
+                        bookingLink.classList.remove('text-gray-500');
+                        bookingLink.classList.add('text-white');
+                        const icon = bookingLink.querySelector('.material-symbols-outlined');
+                        if (icon) {
+                             icon.classList.add('fill');
+                        }
+                    }
+                } else {
+                    const activeLink = document.querySelector(`[data-target="${targetId}"]`);
+                    if (activeLink) {
+                        activeLink.classList.remove('text-gray-500');
+                        activeLink.classList.add('text-white');
+                        const icon = activeLink.querySelector('.material-symbols-outlined');
+                        if (icon) {
+                             icon.classList.add('fill');
+                        }
+                    }
+                }
+            };
+            
+            // Start app immediately (no login)
+            document.body.classList.remove('justify-center');
+            document.body.classList.add('justify-between');
+            mainContentArea.classList.add('logged-in');
+            showSection('trusted-picks-section');
+            updateActiveLink('trusted-picks-section');
+
+            // --- Event Listeners for App Navigation (after login) ---
+
+            // Add click listeners to navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.dataset.target;
+                    showSection(targetId);
+                    updateActiveLink(targetId);
+                });
+            });
+
+            // Add click listeners to "Book Now" buttons
+            bookNowButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = button.dataset.target;
+                    showSection(targetId);
+                    updateActiveLink(targetId);
+                });
+            });
+
+            // Add click listener to the "Confirm Booking" button
+            confirmBookingBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('qr-ticket-section');
+                updateActiveLink('qr-ticket-section');
+            });
+        });
+    </script>
+</body>
+</html>
