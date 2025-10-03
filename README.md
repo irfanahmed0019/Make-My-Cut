@@ -1,7 +1,7 @@
 Make My Cut
 https://irfanahmed0019.github.io/Make-My-Cut/
 Make My Cut is a simple web app for booking haircuts quickly and easily. Users can browse styles, schedule appointments, and manage their bookings.
-
+https://style-sync-backend.lovable.app/
 Tech Stack
 
 Frontend: HTML, CSS, JavaScript
