@@ -7,7 +7,7 @@
 
 ## 🎬 Hero / Demo
 
-![MakeMyCut Hero](https://via.placeholder.com/900x300.png?text=MakeMyCut+-+AI+Survey+MVP)
+![MakeMyCut Hero](https://v0-booking-ui-redesign.vercel.app/)
 
 <div align="center">
 
