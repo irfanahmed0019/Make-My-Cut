@@ -33,19 +33,7 @@
 
 ---
 
-## 🖼 Screenshots / Workflow
 
-**Survey Flow:**
-
-![Survey Workflow](https://via.placeholder.com/800x400.png?text=Survey+Workflow)
-
-**Admin Dashboard (AI-Managed):**
-
-![Dashboard](https://via.placeholder.com/800x400.png?text=Dashboard+Preview)
-
-> Replace placeholders with real images or animated GIFs once ready. Investors love seeing flow in action.
-
----
 
 ## 🛠 Tech Stack
 
